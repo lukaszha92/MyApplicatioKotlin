@@ -19,7 +19,9 @@
             android:background="@drawable/rounded_edit_text_login_register"
             android:maxWidth="240dp"
             android:padding="16dp"/>
-    <ImageView
+    <de.hdodenhof.circleimageview.CircleImageView
+            app:civ_border_width="2dp"
+            app:civ_border_color="@android:color/black"
             android:layout_width="50dp"
             android:layout_height="50dp"
             app:srcCompat="@android:drawable/btn_star_big_on"

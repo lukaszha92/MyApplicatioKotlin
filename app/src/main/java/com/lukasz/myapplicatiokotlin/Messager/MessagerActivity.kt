@@ -3,13 +3,23 @@ package com.lukasz.myapplicatiokotlin.Messager
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.lukasz.myapplicatiokotlin.LoginRegister.RegisterActivity
+import com.lukasz.myapplicatiokotlin.Models.User
 import com.lukasz.myapplicatiokotlin.R
 
 class MessagerActivity : AppCompatActivity() {
+
+    companion object{
+        var currentUser: User? = null
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -17,7 +27,24 @@ class MessagerActivity : AppCompatActivity() {
 
         supportActionBar?.title = "Messager"
 
+        fetcherCurrentUser()
+
         verifyUserIsLoggedIn()
+    }
+
+    private fun fetcherCurrentUser(){
+        val uid = FirebaseAuth.getInstance().uid
+        val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
+        ref.addListenerForSingleValueEvent(object: ValueEventListener{
+            override fun onCancelled(p0: DatabaseError) {
+
+            }
+
+            override fun onDataChange(p0: DataSnapshot) {
+               currentUser = p0.getValue(User::class.java)
+                Log.d("MessagerActivity", "Current user ${currentUser?.profileImageUrl}")
+            }
+        })
     }
 
     private fun verifyUserIsLoggedIn(){

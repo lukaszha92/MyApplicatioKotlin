@@ -11,12 +11,14 @@ import com.google.firebase.database.FirebaseDatabase
 import com.lukasz.myapplicatiokotlin.Models.ChatMessage
 import com.lukasz.myapplicatiokotlin.Models.User
 import com.lukasz.myapplicatiokotlin.R
+import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.Item
 import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.activity_chat_log.*
 import kotlinx.android.synthetic.main.chat_from_row.view.*
 import kotlinx.android.synthetic.main.chat_to_row.view.*
+import kotlinx.android.synthetic.main.chat_to_row.view.imageView as imageView1
 
 class ChatLogActivity : AppCompatActivity() {
 
@@ -25,15 +27,17 @@ class ChatLogActivity : AppCompatActivity() {
     }
     val adapter = GroupAdapter<ViewHolder>()
 
+    var toUser: User? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_log)
 
         recyclerview_chat_log.adapter = adapter
 
-        val user = intent.getParcelableExtra<User>(NewMessageActivity.USER_KEY)  // pobieramy wartosc z poprzedniej aktywnosci
+        toUser = intent.getParcelableExtra<User>(NewMessageActivity.USER_KEY)  // pobieramy wartosc z poprzedniej aktywnosci
 
-        supportActionBar?.title = user.username
+        supportActionBar?.title = toUser?.username
 
        //setupDummyData()
         listenFromMessages()
@@ -61,10 +65,11 @@ class ChatLogActivity : AppCompatActivity() {
                    Log.d(TAG, chatMessage?.text)
 
                    if (chatMessage.fromId == FirebaseAuth.getInstance().uid){  // i dodajemy ja po odpowiedniej stronie
-                       adapter.add(ChatFromItem(chatMessage.text))             // w zaleznosci czy jestesmy adresatami czy nadawcami
+                       val currentUser = MessagerActivity.currentUser
+                       adapter.add(ChatFromItem(chatMessage.text, currentUser!!)) // w zaleznosci czy jestesmy adresatami czy nadawcami
                    }
                    else{
-                       adapter.add(ChatToItem(chatMessage.text))
+                       adapter.add(ChatToItem(chatMessage.text, toUser!!))
                    }
                } // to czy wiadomosc jest po prawej czy po lewej mozliwe jest dzieki funkcja ktore zrobilismy
 
@@ -103,22 +108,15 @@ class ChatLogActivity : AppCompatActivity() {
                 Log.d(TAG, "Saved our chat message ${reference.key}")
             }
     }
-
-    private fun setupDummyData(){
-        val adapter = GroupAdapter<ViewHolder>()  // dodawanie adapeterow dzieki bibliotece com.xwray:groupie:2.3.0
-
-        adapter.add(ChatFromItem("to jest tekst ktory wysylamuy"))
-        adapter.add(ChatToItem("a to tekst ktory odbieramy"))
-        adapter.add(ChatFromItem("to jest tekst ktory wysylamuy"))
-        adapter.add(ChatToItem("a to tekst ktory odbieramy"))
-
-        recyclerview_chat_log.adapter = adapter
-    }
 }
 
-class ChatFromItem(val text: String): Item<ViewHolder>() {
+class ChatFromItem(val text: String, val user: User): Item<ViewHolder>() {
     override fun bind(viewHolder: ViewHolder, position: Int) {
         viewHolder.itemView.textview_from_row.text = text
+
+        val uri = user.profileImageUrl
+        val targetImageView = viewHolder.itemView.imageView
+        Picasso.get().load(uri).into(targetImageView)
 
     }
 
@@ -126,9 +124,13 @@ class ChatFromItem(val text: String): Item<ViewHolder>() {
         return R.layout.chat_from_row
     }
 }
-class ChatToItem(val text: String): Item<ViewHolder>() {
+class ChatToItem(val text: String, val user: User): Item<ViewHolder>() {
     override fun bind(viewHolder: ViewHolder, position: Int) {
         viewHolder.itemView.textview_to_row.text = text
+        // ładowanie zdjecia obok wiadomosci w czacie
+        val uri = user.profileImageUrl
+        val targetImageView = viewHolder.itemView.imageView
+        Picasso.get().load(uri).into(targetImageView)
     }
 
     override fun getLayout(): Int {
