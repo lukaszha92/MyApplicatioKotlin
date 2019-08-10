@@ -8,8 +8,8 @@ import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
-import com.lukasz.myapplicatiokotlin.LoginRegister.User
 import com.lukasz.myapplicatiokotlin.Models.ChatMessage
+import com.lukasz.myapplicatiokotlin.Models.User
 import com.lukasz.myapplicatiokotlin.R
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.Item
@@ -57,11 +57,11 @@ class ChatLogActivity : AppCompatActivity() {
            override fun onChildAdded(p0: DataSnapshot, p1: String?) {
                 val chatMessage = p0.getValue(ChatMessage::class.java) //pobieramy zmienne od kazdej wiadomosci
 
-               if (chatMessage != null) {  // na podstawie uid stwierdzamy czy to wiadomosc do nas czy od nas
+               if (chatMessage != null) {  // na podstawie uid stwierdzamy czy to wiadomosc do nas czy od nas, sprawdzamy tez czy wiadomosc nie jest pusta
                    Log.d(TAG, chatMessage?.text)
 
                    if (chatMessage.fromId == FirebaseAuth.getInstance().uid){  // i dodajemy ja po odpowiedniej stronie
-                       adapter.add(ChatFromItem(chatMessage.text))
+                       adapter.add(ChatFromItem(chatMessage.text))             // w zaleznosci czy jestesmy adresatami czy nadawcami
                    }
                    else{
                        adapter.add(ChatToItem(chatMessage.text))

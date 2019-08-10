@@ -12,6 +12,7 @@ import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
+import com.lukasz.myapplicatiokotlin.Models.User
 import com.lukasz.myapplicatiokotlin.NavigationActivity
 import com.lukasz.myapplicatiokotlin.R
 import kotlinx.android.parcel.Parcelize
@@ -137,16 +138,7 @@ class RegisterActivity : AppCompatActivity() {
     }
 }
 
-@Parcelize
-class User (val uid: String, val username: String, val profileImageUrl: String): Parcelable{
-    constructor() : this("", "", "")
-}
 
-// zeby skorzystac z parcela trzeba dodac do gradle module nad android ponizsze linie
-
-//androidExtensions {
-//    experimental = true
-//}
 
 
 
